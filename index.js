@@ -14,8 +14,8 @@ app.get('/manifest.json', (req, res) => {
     res.json({
         "id": "com.notorrent.addon",
         "version": "2.0.0",
-        "name": "NoTorrent Addon",
-        "description": "Películas y Series desde Hostinger",
+        "name": "NoTorrent",
+        "description": "All TV shows from Netflix, Disney+, Prime Video, Apple TV+, Paramount+, HBO Max, Crunchyroll, and over 24K movies in English & Spanish.",
         "resources": ["catalog", "meta", "stream"],
         "types": ["series", "movie"],
         "idPrefixes": ["tmdb_", "tt"],
