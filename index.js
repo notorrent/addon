@@ -27,9 +27,9 @@ app.get('/manifest.json', (req, res) => {
             { "type": "series", "id": "max", "name": "Max" },
             { "type": "series", "id": "paramount", "name": "Paramount+" },
             { "type": "series", "id": "crunchyroll", "name": "Crunchyroll" },
-            { "type": "movie", "id": "movie_action", "name": "Acción" },
-            { "type": "movie", "id": "movie_horror", "name": "Terror" },
-            { "type": "movie", "id": "movie_scifi", "name": "Ciencia Ficción" }
+            { "type": "movie", "id": "action", "name": "Action" },
+            { "type": "movie", "id": "animation", "name": "Animation" },
+            { "type": "movie", "id": "comedy", "name": "Comedy" }
         ],
         "background": `${HOSTINGER_BASE}/background.jpg`,
         "logo": "https://styles.redditmedia.com/t5_fvvpco/styles/profileIcon_c8ye4t9j6x2g1.png"
@@ -74,12 +74,14 @@ app.get('/meta/:type/:id.json', async (req, res) => {
     }
 });
 
-// 4. STREAM (Enlaces de video)
+
+
 app.get('/stream/:type/:id.json', async (req, res) => {
     const { type, id } = req.params;
     let fileName = id.replace('.json', '');
     
-    // Si es serie (ej: tt123:1:1), convertir a tt123-s01e01
+   
+
     if (type === 'series' && fileName.includes(':')) {
         const parts = fileName.split(':');
         const imdbId = parts[0];
@@ -102,12 +104,14 @@ app.get('/stream/:type/:id.json', async (req, res) => {
     }
 });
 
-// Página de inicio básica
+
+
 app.get('/', (req, res) => {
     res.send('<h1>Addon NoTorrent está funcionando</h1><p>Usa la URL /manifest.json en Stremio</p>');
 });
 
-// Configuración del puerto para Render
+
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Servidor activo en puerto ${PORT}`);
