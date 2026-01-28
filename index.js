@@ -16,7 +16,7 @@ app.get('/manifest.json', (req, res) => {
         "version": "2.0.0",
         "name": "NoTorrent",
         "description": "All TV shows from Netflix, Disney+, Prime Video, Apple TV+, Paramount+, HBO Max, Crunchyroll, and over 24K movies in English & Spanish.",
-        "resources": ["catalog", "meta", "stream"],
+        "resources": ["catalog", "stream"],
         "types": ["series", "movie"],
         "idPrefixes": ["tmdb_", "tt"],
         "catalogs": [
