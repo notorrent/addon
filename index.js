@@ -13,7 +13,7 @@ app.get('/manifest.json', (req, res) => {
         "version": "2.0.0",
         "name": "NoTorrent",
         "description": "All TV shows from Netflix, Disney+, Prime Video, Apple TV+, Paramount+, HBO Max, Crunchyroll, and over 24K movies in English & Spanish.",
-        "resources": ["catalog", "stream"], // SIN "meta"
+        "resources": ["catalog", "stream"],
         "types": ["series", "movie"],
         "idPrefixes": ["tmdb_", "tt"],
         "catalogs": [
@@ -24,7 +24,7 @@ app.get('/manifest.json', (req, res) => {
             { "type": "series", "id": "max", "name": "Max" },
             { "type": "series", "id": "paramount", "name": "Paramount+" },
             { "type": "series", "id": "crunchyroll", "name": "Crunchyroll" },
-            { "type": "movie", "id": "action", "name": "Action 2026" },
+            { "type": "movie", "id": "action", "name": "Action" },
             { "type": "movie", "id": "animation", "name": "Animation" },
             { "type": "movie", "id": "comedy", "name": "Comedy" }
         ],
@@ -33,16 +33,43 @@ app.get('/manifest.json', (req, res) => {
     });
 });
 
-// 2. CATALOG - REDIRECCIÓN DIRECTA (sin consumo de ancho de banda)
-app.get('/catalog/:type/:id.json', (req, res) => {
+// 2. CATALOG - Proxy simple con fetch directo
+app.get('/catalog/:type/:id.json', async (req, res) => {
     const { type, id } = req.params;
+    
+    // Construir URL pero NO descargar si no es necesario
     const targetUrl = `${HOSTINGER_BASE}/catalog/${type}/${id}.json`;
-    console.log(`Redirigiendo Catálogo: ${targetUrl}`);
-    res.redirect(302, targetUrl);
+    console.log(`Proxy para Catálogo: ${targetUrl}`);
+    
+    try {
+        // Solo hacemos fetch si realmente vamos a usarlo
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(targetUrl, {
+            headers: {
+                'User-Agent': 'Stremio-Addon/1.0'
+            }
+        });
+        
+        if (!response.ok) {
+            // Si falla, devolver array vacío inmediatamente
+            return res.json({ metas: [] });
+        }
+        
+        // Pasar los headers de CORS importantes
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Content-Type', 'application/json');
+        
+        // Pipe directo: Hostinger → Render → Stremio
+        response.body.pipe(res);
+        
+    } catch (error) {
+        console.error(`Error en catálogo: ${error.message}`);
+        res.json({ metas: [] });
+    }
 });
 
-// 3. STREAM - REDIRECCIÓN DIRECTA (sin consumo de ancho de banda)
-app.get('/stream/:type/:id.json', (req, res) => {
+// 3. STREAM - Proxy simple con fetch directo
+app.get('/stream/:type/:id.json', async (req, res) => {
     const { type, id } = req.params;
     let fileName = id.replace('.json', '');
     
@@ -55,17 +82,41 @@ app.get('/stream/:type/:id.json', (req, res) => {
     }
 
     const targetUrl = `${HOSTINGER_BASE}/stream/${type}/${fileName}.json`;
-    console.log(`Redirigiendo Stream: ${targetUrl}`);
-    res.redirect(302, targetUrl);
+    console.log(`Proxy para Stream: ${targetUrl}`);
+    
+    try {
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(targetUrl, {
+            headers: {
+                'User-Agent': 'Stremio-Addon/1.0'
+            }
+        });
+        
+        if (!response.ok) {
+            return res.json({ streams: [] });
+        }
+        
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Content-Type', 'application/json');
+        response.body.pipe(res);
+        
+    } catch (error) {
+        console.error(`Error en stream: ${error.message}`);
+        res.json({ streams: [] });
+    }
 });
 
-// NO HAY RUTA PARA /meta/:type/:id.json - Stremio usará Cinemeta automáticamente
-
+// 4. Ruta raíz simple
 app.get('/', (req, res) => {
-    res.send('<h1>Addon NoTorrent está funcionando</h1><p>Redirección activa - mínimo consumo</p>');
+    res.send('<h1>Addon NoTorrent (Proxy Optimizado)</h1><p>Minimizando consumo de ancho de banda</p>');
+});
+
+// 5. Health check para Render
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Servidor activo en puerto ${PORT} (modo redirección)`);
+    console.log(`Servidor proxy activo en puerto ${PORT}`);
 });
