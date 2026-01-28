@@ -6,7 +6,7 @@ app.use(cors());
 
 const HOSTINGER_BASE = 'https://aqua-vulture-337623.hostingersite.com/addon';
 
-// 1. MANIFEST
+
 app.get('/manifest.json', (req, res) => {
     res.json({
         "id": "com.notorrent.addon",
@@ -24,16 +24,14 @@ app.get('/manifest.json', (req, res) => {
             { "type": "series", "id": "max", "name": "Max" },
             { "type": "series", "id": "paramount", "name": "Paramount+" },
             { "type": "series", "id": "crunchyroll", "name": "Crunchyroll" },
-            { "type": "movie", "id": "action", "name": "Action" },
-            { "type": "movie", "id": "animation", "name": "Animation" },
-            { "type": "movie", "id": "comedy", "name": "Comedy" }
+
         ],
         "background": `${HOSTINGER_BASE}/background.jpg`,
         "logo": "https://styles.redditmedia.com/t5_fvvpco/styles/profileIcon_c8ye4t9j6x2g1.png"
     });
 });
 
-// 2. CATALOG - Proxy simple con fetch directo
+
 app.get('/catalog/:type/:id.json', async (req, res) => {
     const { type, id } = req.params;
     
@@ -68,7 +66,7 @@ app.get('/catalog/:type/:id.json', async (req, res) => {
     }
 });
 
-// 3. STREAM - Proxy simple con fetch directo
+
 app.get('/stream/:type/:id.json', async (req, res) => {
     const { type, id } = req.params;
     let fileName = id.replace('.json', '');
@@ -106,7 +104,7 @@ app.get('/stream/:type/:id.json', async (req, res) => {
     }
 });
 
-// 4. Ruta raíz simple
+
 app.get('/', (req, res) => {
     res.send('<h1>Addon NoTorrent (Proxy Optimizado)</h1><p>Minimizando consumo de ancho de banda</p>');
 });
