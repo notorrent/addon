@@ -54,25 +54,7 @@ app.get('/catalog/:type/:id.json', async (req, res) => {
     }
 });
 
-// 3. META (Detalles de una película o serie específica)
-app.get('/meta/:type/:id.json', async (req, res) => {
-    const { type, id } = req.params;
-    // Quitamos .json si Stremio lo envía en el ID
-    const cleanId = id.replace('.json', '');
-    const targetUrl = `${HOSTINGER_BASE}/meta/${type}/${cleanId}.json`;
-    
-    console.log(`Solicitando Meta: ${targetUrl}`);
-    
-    try {
-        const response = await fetch(targetUrl);
-        if (!response.ok) throw new Error('Meta no encontrado');
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error(`Error en meta: ${error.message}`);
-        res.status(404).json({ error: "No encontrado" });
-    }
-});
+
 
 
 
